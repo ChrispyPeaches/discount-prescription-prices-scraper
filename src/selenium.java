@@ -31,13 +31,13 @@ public class selenium {
 
         }
         catch (Exception e){
-            System.out.println(e);
+            System.out.println(e.getMessage());
         }
         finally{
             Teardown();
         }
     }
-    public static boolean RXcom(Medication medication) throws InterruptedException {
+    public static void RXcom(Medication medication) throws InterruptedException {
         // Go to rx.com
         driver.get("https://www.rx.com/");
         // Click on the text input
@@ -52,19 +52,41 @@ public class selenium {
         TimeUnit.SECONDS.sleep(5);
         // Select the pop-up menu's close button
         driver.findElement(By.cssSelector("#closebutton")).click();
-
-        driver.findElement(By.cssSelector("#dropdown-select-package")).click();
-        List<WebElement> options = driver.findElements(By.cssSelector("#dropdown-menu-package li"));
         TimeUnit.SECONDS.sleep(1);
-        for (WebElement option: options) {
-            if(option.getAttribute("data-field-value").contains(String.valueOf(medication.dosageAmnt))){
+
+        // Select given dosage
+        // Click the dosage dropdown menu
+        driver.findElement(By.cssSelector("#dropdown-select-package")).click();
+        // Grab the options of the dropdown menu
+        List<WebElement> dosgeOptions = driver.findElements(By.cssSelector("#dropdown-menu-package li"));
+        // Check each option for a match to the given dosage
+        for (WebElement option: dosgeOptions) {
+            if(option.getAttribute("data-field-value").contains(String.valueOf(medication.dosageAmnt))
+                    && option.getAttribute("data-field-value").toUpperCase().contains(medication.dosageUnit)){
+                // If there's a match, select it.
                 option.click();
             }
         }
-        return true;
+        // Wait for page to load
+        TimeUnit.SECONDS.sleep(2);
+
+        // Select given amount
+        // Click the amount dropdown menu
+        driver.findElement(By.cssSelector("#dropdown-select-qty")).click();
+        // Grab the options of the dropdown menu
+        List<WebElement> Amntoptions = driver.findElements(By.cssSelector("#dropdown-menu-qty li"));
+        // Check each option for a match to the given monthly count
+        for (WebElement option: Amntoptions) {
+            if(option.getAttribute("data-field-value").contains(String.valueOf(medication.monthlyCnt))){
+                // If there's a match, select it.
+                option.click();
+            }
+        }
+        // Wait for page to load
+        TimeUnit.SECONDS.sleep(2);
     }
     public static void Teardown(){
-        driver.close();
         driver.quit();
+        driver.close();
     }
 }

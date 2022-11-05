@@ -7,7 +7,7 @@ public class Medication {
     public Medication(String name, int dosageAmnt, String dosageUnit, int monthlyCnt) {
         this.name = name;
         this.dosageAmnt = dosageAmnt;
-        this.dosageUnit = dosageUnit;
+        this.dosageUnit = dosageUnit.toUpperCase();
         this.monthlyCnt = monthlyCnt;
     }
 }
