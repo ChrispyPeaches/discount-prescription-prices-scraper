@@ -1,8 +1,10 @@
 import io.github.bonigarcia.wdm.WebDriverManager;
+import org.jsoup.Jsoup;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -15,13 +17,13 @@ public class selenium {
 
     public static void main(String[] args){
         String zipCode = "71272";
-        Medication DextroamphetamineAmphetamine = new Medication(
-                "Dextroamphetamine-amphetamine",
-                15,
+        Medication metformin = new Medication(
+                "metformin",
+                1000,
                 "mg",
-                30
+                60
         );
-        Medication[] medList = {DextroamphetamineAmphetamine};
+        Medication[] medList = {metformin};
         try{
             Setup();
             for (Medication medication: medList) {
@@ -68,11 +70,14 @@ public class selenium {
             }
         }
         // Wait for page to load
-        TimeUnit.SECONDS.sleep(2);
+        TimeUnit.SECONDS.sleep(3);
 
-        // Select given amount
+        /*
+         * Select given amount
+         */
         // Click the amount dropdown menu
         driver.findElement(By.cssSelector("#dropdown-select-qty")).click();
+        TimeUnit.MILLISECONDS.sleep(200);
         // Grab the options of the dropdown menu
         List<WebElement> Amntoptions = driver.findElements(By.cssSelector("#dropdown-menu-qty li"));
         // Check each option for a match to the given monthly count
@@ -83,7 +88,46 @@ public class selenium {
             }
         }
         // Wait for page to load
-        TimeUnit.SECONDS.sleep(2);
+        TimeUnit.SECONDS.sleep(5);
+
+        /*
+         * Loop through each of the results and retrieve the pharmacy name,
+         */
+        List<Result> results = new ArrayList<>();
+        List<WebElement> elements = driver.findElements(By.cssSelector(".search-result__item"));
+        for (WebElement element : elements) {
+            // Get the pharmacy name
+            String pharmaName = element
+                    .findElement(By.cssSelector("img:first-of-type"))
+                    .getAttribute("src");
+            pharmaName = pharmaName.substring(pharmaName.lastIndexOf('-') + 1, pharmaName.lastIndexOf('.'));
+            // Get the pharmacy addresses
+            List<String> addresses = new ArrayList<>();
+            var addressContainerSelector = element
+                    .findElement(By.cssSelector("a:first-of-type"))
+                    .getAttribute("href");
+            addressContainerSelector = addressContainerSelector
+                    .substring(addressContainerSelector
+                    .lastIndexOf('#'));
+            for (WebElement addressElement: driver.findElements(By.cssSelector(addressContainerSelector + " h4"))) {
+                String innerText = addressElement.getAttribute("innerHTML");
+                var innerHtml = Jsoup.parse(innerText);
+                innerHtml.select("span").remove();
+                innerText = innerHtml.select("body").text();
+                addresses.add(innerText);
+            }
+            float price = Float.parseFloat(element.findElement(By.cssSelector(".price-part")).getText());
+
+            TimeUnit.SECONDS.sleep(2);
+            var result = new Result(
+                    pharmaName,
+                    addresses,
+                    price
+            );
+            results.add(result);
+            System.out.println(result);
+        }
+
     }
     public static void Teardown(){
         driver.quit();

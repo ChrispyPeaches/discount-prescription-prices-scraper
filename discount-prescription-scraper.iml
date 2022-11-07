@@ -10,5 +10,6 @@
     <orderEntry type="library" name="seleniumhq.selenium.chrome.driver" level="project" />
     <orderEntry type="library" name="io.github.bonigarcia.webdrivermanager" level="project" />
     <orderEntry type="library" name="seleniumhq.selenium.devtools.v103" level="project" />
+    <orderEntry type="library" name="jsoup" level="project" />
   </component>
 </module>
