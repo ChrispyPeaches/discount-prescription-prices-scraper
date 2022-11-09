@@ -15,7 +15,7 @@ public class selenium {
         driver = new ChromeDriver();
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         String zipCode = "71272";
         Medication metformin = new Medication(
                 "metformin",
@@ -33,7 +33,9 @@ public class selenium {
 
         }
         catch (Exception e){
-            System.out.println(e.getMessage());
+            e.getMessage();
+            e.getCause();
+            e.printStackTrace();
         }
         finally{
             Teardown();
@@ -97,10 +99,19 @@ public class selenium {
         List<WebElement> elements = driver.findElements(By.cssSelector(".search-result__item"));
         for (WebElement element : elements) {
             // Get the pharmacy name
-            String pharmaName = element
-                    .findElement(By.cssSelector("img:first-of-type"))
-                    .getAttribute("src");
-            pharmaName = pharmaName.substring(pharmaName.lastIndexOf('-') + 1, pharmaName.lastIndexOf('.'));
+            WebElement logoOrNameElement = null;
+            try{
+                logoOrNameElement = element.findElement(By.cssSelector("h4 b, img:first-of-type"));
+            } catch (Exception e) {
+                continue;
+            }
+            String pharmaName = "";
+            if(logoOrNameElement.getTagName().contains("img")){
+                pharmaName = logoOrNameElement.getAttribute("src");
+                pharmaName = pharmaName.substring(pharmaName.lastIndexOf('-') + 1, pharmaName.lastIndexOf('.'));
+            } else if (logoOrNameElement.getTagName().contains("b")){
+                pharmaName = logoOrNameElement.getText();
+            }
             // Get the pharmacy addresses
             List<String> addresses = new ArrayList<>();
             var addressContainerSelector = element
